@@ -7,6 +7,39 @@ The **DSF to WAV Converter** is a C++ utility that converts **DSD (Direct Stream
 - **Multiple PCM bit depths & sample rates**
 - **Multi-channel support (Stereo, 5.1, 7.1)**
 
+## 🎵 **DSD over PCM (DoP) Wrapping Explained**
+
+DoP (DSD over PCM) is a method to encapsulate **DSD audio inside PCM frames**, allowing it to be transmitted over PCM-compatible paths.
+
+```
+DSD 1-bit Stream (Raw Data)
+-------------------------------------------------
+| 1 | 0 | 1 | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | 1 |  (High-frequency 1-bit data)
+-------------------------------------------------
+
+DoP Wrapped in 24-bit PCM Frames:
+----------------------------------------------------------
+| Marker (8 bits) | DSD Data (16 bits)  | PCM Sample 1  |
+|      0x05       | 1011010010111101     |               |
+----------------------------------------------------------
+| Marker (8 bits) | DSD Data (16 bits)  | PCM Sample 2  |
+|      0xFA       | 0110101010100010     |               |
+----------------------------------------------------------
+| Marker (8 bits) | DSD Data (16 bits)  | PCM Sample 3  |
+|      0x05       | 1010100111101010     |               |
+----------------------------------------------------------
+
+How It Works:
+- Each **PCM frame is 24-bit**.
+- **First 8 bits** → **DoP marker** (0x05, 0xFA alternating).
+- **Next 16 bits** → **DSD data** extracted from the raw 1-bit stream.
+- **DAC recognizes the 0x05FA markers** and decodes it back to **native DSD**.
+
+Example:
+- **DSD 1-bit Stream**: 1011010010111101
+- **DoP Wrapped**: 0x05, 1011010010111101, 0xFA, 0110101010100010, 0x05, 1010100111101010
+```
+
 ---
 
 ## 🚀 Features
